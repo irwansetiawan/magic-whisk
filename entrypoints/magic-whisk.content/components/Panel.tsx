@@ -1,4 +1,6 @@
 import { useState } from 'react';
+import { QueueTab } from './QueueTab';
+import { useQueue } from '../hooks/useQueue';
 
 type Tab = 'queue' | 'gallery' | 'settings';
 
@@ -8,6 +10,7 @@ interface PanelProps {
 
 export function Panel({ onClose }: PanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>('queue');
+  const queue = useQueue();
 
   return (
     <div
@@ -75,7 +78,19 @@ export function Panel({ onClose }: PanelProps) {
 
       {/* Tab content */}
       <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
-        {activeTab === 'queue' && <div>Queue tab (coming next)</div>}
+        {activeTab === 'queue' && (
+          <QueueTab
+            items={queue.items}
+            isRunning={queue.isRunning}
+            isPaused={queue.isPaused}
+            onAddItem={queue.addItem}
+            onRemoveItem={queue.removeItem}
+            onUpdatePrompt={queue.updatePrompt}
+            onStart={() => console.log('Start clicked')}
+            onPause={() => console.log('Pause clicked')}
+            onStop={() => console.log('Stop clicked')}
+          />
+        )}
         {activeTab === 'gallery' && <div>Gallery tab (coming later)</div>}
         {activeTab === 'settings' && <div>Settings tab (coming later)</div>}
       </div>
