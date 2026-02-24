@@ -1,5 +1,7 @@
-import { useState, useCallback } from 'react';
-import type { QueueItem } from '@/src/shared/types';
+import { useState, useCallback, useRef } from 'react';
+import type { QueueItem, ResultItem } from '@/src/shared/types';
+import { DEFAULT_SETTINGS } from '@/src/shared/types';
+import { runQueue } from '@/src/automation/runner';
 
 export function useQueue() {
   const [items, setItems] = useState<QueueItem[]>([
@@ -7,6 +9,10 @@ export function useQueue() {
   ]);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [results, setResults] = useState<ResultItem[]>([]);
+
+  const isPausedRef = useRef(false);
+  const isStoppedRef = useRef(false);
 
   const addItem = useCallback(() => {
     setItems((prev) => [...prev, createItem('')]);
@@ -28,6 +34,39 @@ export function useQueue() {
     );
   }, []);
 
+  const start = useCallback(() => {
+    setIsRunning(true);
+    setIsPaused(false);
+    isPausedRef.current = false;
+    isStoppedRef.current = false;
+
+    runQueue(items, {
+      onItemStart: (id) => updateStatus(id, 'running'),
+      onItemDone: (id, result) => {
+        updateStatus(id, 'done');
+        setResults((prev) => [...prev, result]);
+      },
+      onItemFailed: (id, error) => updateStatus(id, 'failed', error),
+      onComplete: () => setIsRunning(false),
+      getSettings: () => DEFAULT_SETTINGS,
+      shouldPause: () => isPausedRef.current,
+      shouldStop: () => isStoppedRef.current,
+    });
+  }, [items, updateStatus]);
+
+  const pause = useCallback(() => {
+    setIsPaused((prev) => {
+      const next = !prev;
+      isPausedRef.current = next;
+      return next;
+    });
+  }, []);
+
+  const stop = useCallback(() => {
+    isStoppedRef.current = true;
+    setIsRunning(false);
+  }, []);
+
   return {
     items,
     setItems,
@@ -35,10 +74,14 @@ export function useQueue() {
     setIsRunning,
     isPaused,
     setIsPaused,
+    results,
     addItem,
     removeItem,
     updatePrompt,
     updateStatus,
+    start,
+    pause,
+    stop,
   };
 }
 

@@ -86,12 +86,14 @@ export function Panel({ onClose }: PanelProps) {
             onAddItem={queue.addItem}
             onRemoveItem={queue.removeItem}
             onUpdatePrompt={queue.updatePrompt}
-            onStart={() => console.log('Start clicked')}
-            onPause={() => console.log('Pause clicked')}
-            onStop={() => console.log('Stop clicked')}
+            onStart={queue.start}
+            onPause={queue.pause}
+            onStop={queue.stop}
           />
         )}
-        {activeTab === 'gallery' && <div>Gallery tab (coming later)</div>}
+        {activeTab === 'gallery' && (
+          <div>Gallery tab (coming later) &mdash; {queue.results.length} results</div>
+        )}
         {activeTab === 'settings' && <div>Settings tab (coming later)</div>}
       </div>
     </div>
