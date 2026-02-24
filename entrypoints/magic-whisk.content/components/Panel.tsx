@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { QueueTab } from './QueueTab';
+import { GalleryTab } from './GalleryTab';
 import { useQueue } from '../hooks/useQueue';
 
 type Tab = 'queue' | 'gallery' | 'settings';
@@ -91,9 +92,7 @@ export function Panel({ onClose }: PanelProps) {
             onStop={queue.stop}
           />
         )}
-        {activeTab === 'gallery' && (
-          <div>Gallery tab (coming later) &mdash; {queue.results.length} results</div>
-        )}
+        {activeTab === 'gallery' && <GalleryTab results={queue.results} />}
         {activeTab === 'settings' && <div>Settings tab (coming later)</div>}
       </div>
     </div>
