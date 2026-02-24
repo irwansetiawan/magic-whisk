@@ -45,6 +45,16 @@ export function useQueue() {
       onItemDone: (id, result) => {
         updateStatus(id, 'done');
         setResults((prev) => [...prev, result]);
+
+        // Auto-download the generated image via background service worker
+        browser.runtime.sendMessage({
+          type: 'DOWNLOAD_IMAGE',
+          payload: {
+            imageUrl: result.imageUrl,
+            filename: `${sanitizeFilename(result.prompt)}-${Date.now()}.png`,
+            folder: 'magic-whisk',
+          },
+        });
       },
       onItemFailed: (id, error) => updateStatus(id, 'failed', error),
       onComplete: () => setIsRunning(false),
@@ -92,4 +102,12 @@ function createItem(prompt: string): QueueItem {
     status: 'pending',
     createdAt: Date.now(),
   };
+}
+
+function sanitizeFilename(prompt: string): string {
+  return prompt
+    .slice(0, 50)
+    .replace(/[^a-z0-9]/gi, '_')
+    .replace(/_+/g, '_')
+    .replace(/^_|_$/g, '');
 }
