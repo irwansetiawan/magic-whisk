@@ -1,4 +1,6 @@
+import './style.css';
 import ReactDOM from 'react-dom/client';
+import { App } from './App';
 
 export default defineContentScript({
   matches: ['*://labs.google/fx/tools/whisk*'],
@@ -13,7 +15,7 @@ export default defineContentScript({
         const app = document.createElement('div');
         container.append(app);
         const root = ReactDOM.createRoot(app);
-        root.render(<div>Magic Whisk loaded</div>);
+        root.render(<App />);
         return root;
       },
       onRemove: (root) => {
