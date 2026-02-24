@@ -8,11 +8,11 @@ export default defineBackground(() => {
       if (message.type === 'DOWNLOAD_IMAGE') {
         const { imageUrl, filename, folder } = message.payload;
 
-        chrome.downloads.download({
+        browser.downloads.download({
           url: imageUrl,
           filename: `${folder}/${filename}`,
           saveAs: false,
-        }, (downloadId) => {
+        }).then((downloadId) => {
           sendResponse({ success: true, downloadId });
         });
 

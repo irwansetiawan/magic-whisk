@@ -95,7 +95,7 @@ export function Panel({ onClose }: PanelProps) {
             onStop={queue.stop}
           />
         )}
-        {activeTab === 'gallery' && <GalleryTab results={queue.results} />}
+        {activeTab === 'gallery' && <GalleryTab results={queue.results} downloadFolder={settingsObj.settings.downloadFolder} />}
         {activeTab === 'settings' && <SettingsTab settings={settingsObj.settings} onUpdateSettings={settingsObj.updateSettings} />}
       </div>
     </div>

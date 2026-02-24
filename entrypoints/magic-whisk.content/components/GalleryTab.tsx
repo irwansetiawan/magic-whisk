@@ -3,9 +3,10 @@ import type { ResultItem } from '@/src/shared/types';
 
 interface GalleryTabProps {
   results: ResultItem[];
+  downloadFolder: string;
 }
 
-export function GalleryTab({ results }: GalleryTabProps) {
+export function GalleryTab({ results, downloadFolder }: GalleryTabProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const toggleSelect = (id: string) => {
@@ -26,7 +27,7 @@ export function GalleryTab({ results }: GalleryTabProps) {
           payload: {
             imageUrl: item.imageUrl,
             filename: `${item.prompt.slice(0, 50).replace(/[^a-z0-9]/gi, '_')}-${item.id.slice(0, 8)}.png`,
-            folder: 'magic-whisk',
+            folder: downloadFolder,
           },
         });
       }

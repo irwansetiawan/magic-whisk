@@ -5,5 +5,6 @@ export default defineConfig({
   modules: ['@wxt-dev/module-react'],
   manifest: {
     permissions: ['storage', 'downloads'],
+    host_permissions: ['*://labs.google/*', '*://*.googleusercontent.com/*'],
   },
 });

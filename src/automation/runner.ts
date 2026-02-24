@@ -1,4 +1,3 @@
-// src/automation/runner.ts
 import { generateOne, delay } from './driver';
 import type { QueueItem, ResultItem } from '@/src/shared/types';
 
@@ -18,7 +17,8 @@ export async function runQueue(
 ): Promise<void> {
   const pending = items.filter((item) => item.status === 'pending');
 
-  for (const item of pending) {
+  for (let i = 0; i < pending.length; i++) {
+    const item = pending[i];
     if (callbacks.shouldStop()) break;
 
     while (callbacks.shouldPause()) {
@@ -46,7 +46,8 @@ export async function runQueue(
       callbacks.onItemFailed(item.id, message);
     }
 
-    if (!callbacks.shouldStop()) {
+    // Delay between generations, but not after the last item
+    if (!callbacks.shouldStop() && i < pending.length - 1) {
       const { delayBetweenGenerations } = callbacks.getSettings();
       await delay(delayBetweenGenerations);
     }
