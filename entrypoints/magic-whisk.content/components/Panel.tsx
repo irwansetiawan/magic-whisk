@@ -1,7 +1,9 @@
 import { useState } from 'react';
 import { QueueTab } from './QueueTab';
 import { GalleryTab } from './GalleryTab';
+import { SettingsTab } from './SettingsTab';
 import { useQueue } from '../hooks/useQueue';
+import { useSettings } from '../hooks/useSettings';
 
 type Tab = 'queue' | 'gallery' | 'settings';
 
@@ -11,7 +13,8 @@ interface PanelProps {
 
 export function Panel({ onClose }: PanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>('queue');
-  const queue = useQueue();
+  const settingsObj = useSettings();
+  const queue = useQueue(settingsObj.settings);
 
   return (
     <div
@@ -93,7 +96,7 @@ export function Panel({ onClose }: PanelProps) {
           />
         )}
         {activeTab === 'gallery' && <GalleryTab results={queue.results} />}
-        {activeTab === 'settings' && <div>Settings tab (coming later)</div>}
+        {activeTab === 'settings' && <SettingsTab settings={settingsObj.settings} onUpdateSettings={settingsObj.updateSettings} />}
       </div>
     </div>
   );

@@ -1,9 +1,8 @@
 import { useState, useCallback, useRef } from 'react';
-import type { QueueItem, ResultItem } from '@/src/shared/types';
-import { DEFAULT_SETTINGS } from '@/src/shared/types';
+import type { QueueItem, ResultItem, Settings } from '@/src/shared/types';
 import { runQueue } from '@/src/automation/runner';
 
-export function useQueue() {
+export function useQueue(settings: Settings) {
   const [items, setItems] = useState<QueueItem[]>([
     createItem(''),
   ]);
@@ -13,6 +12,8 @@ export function useQueue() {
 
   const isPausedRef = useRef(false);
   const isStoppedRef = useRef(false);
+  const settingsRef = useRef(settings);
+  settingsRef.current = settings;
 
   const addItem = useCallback(() => {
     setItems((prev) => [...prev, createItem('')]);
@@ -47,18 +48,20 @@ export function useQueue() {
         setResults((prev) => [...prev, result]);
 
         // Auto-download the generated image via background service worker
-        browser.runtime.sendMessage({
-          type: 'DOWNLOAD_IMAGE',
-          payload: {
-            imageUrl: result.imageUrl,
-            filename: `${sanitizeFilename(result.prompt)}-${Date.now()}.png`,
-            folder: 'magic-whisk',
-          },
-        });
+        if (settingsRef.current.autoDownload) {
+          browser.runtime.sendMessage({
+            type: 'DOWNLOAD_IMAGE',
+            payload: {
+              imageUrl: result.imageUrl,
+              filename: `${sanitizeFilename(result.prompt)}-${Date.now()}.png`,
+              folder: settingsRef.current.downloadFolder,
+            },
+          });
+        }
       },
       onItemFailed: (id, error) => updateStatus(id, 'failed', error),
       onComplete: () => setIsRunning(false),
-      getSettings: () => DEFAULT_SETTINGS,
+      getSettings: () => settingsRef.current,
       shouldPause: () => isPausedRef.current,
       shouldStop: () => isStoppedRef.current,
     });
