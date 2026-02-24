@@ -1,5 +1,3 @@
-// src/shared/messages.ts
-
 export interface DownloadImageMessage {
   type: 'DOWNLOAD_IMAGE';
   payload: {

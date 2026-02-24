@@ -1,5 +1,3 @@
-// src/shared/types.ts
-
 export interface QueueItem {
   id: string;
   prompt: string;

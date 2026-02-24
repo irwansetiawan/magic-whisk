@@ -1,5 +1,4 @@
-// src/shared/storage.ts
-import { storage } from 'wxt/storage';
+import { storage } from 'wxt/utils/storage';
 import type { QueueItem, ResultItem, Settings } from './types';
 import { DEFAULT_SETTINGS } from './types';
 
