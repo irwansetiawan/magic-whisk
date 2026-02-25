@@ -10,7 +10,7 @@ export function SettingsTab({ settings, onUpdateSettings }: SettingsTabProps) {
     <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
       {/* Delay between generations */}
       <div>
-        <label style={{ display: 'block', marginBottom: '4px', color: '#ccc', fontSize: '13px' }}>
+        <label style={{ display: 'block', marginBottom: '4px', color: '#a0a3b5', fontSize: '13px' }}>
           Delay between generations: {settings.delayBetweenGenerations / 1000}s
         </label>
         <input
@@ -26,7 +26,7 @@ export function SettingsTab({ settings, onUpdateSettings }: SettingsTabProps) {
 
       {/* Auto-download toggle */}
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <label style={{ color: '#ccc', fontSize: '13px' }}>Auto-download images</label>
+        <label style={{ color: '#a0a3b5', fontSize: '13px' }}>Auto-download images</label>
         <button
           onClick={() => onUpdateSettings({ autoDownload: !settings.autoDownload })}
           style={{
@@ -34,7 +34,7 @@ export function SettingsTab({ settings, onUpdateSettings }: SettingsTabProps) {
             height: '24px',
             borderRadius: '12px',
             border: 'none',
-            background: settings.autoDownload ? '#1a73e8' : '#555',
+            background: settings.autoDownload ? '#9366f0' : '#1f2637',
             cursor: 'pointer',
             position: 'relative',
             transition: 'background 0.2s',
@@ -55,7 +55,7 @@ export function SettingsTab({ settings, onUpdateSettings }: SettingsTabProps) {
 
       {/* Download folder name */}
       <div>
-        <label style={{ display: 'block', marginBottom: '4px', color: '#ccc', fontSize: '13px' }}>
+        <label style={{ display: 'block', marginBottom: '4px', color: '#a0a3b5', fontSize: '13px' }}>
           Download folder name
         </label>
         <input
@@ -65,10 +65,10 @@ export function SettingsTab({ settings, onUpdateSettings }: SettingsTabProps) {
           style={{
             width: '100%',
             padding: '8px',
-            background: '#2a2a2a',
-            border: '1px solid #444',
+            background: '#141926',
+            border: '1px solid #1f2637',
             borderRadius: '6px',
-            color: '#e0e0e0',
+            color: '#e2e4eb',
             fontSize: '13px',
           }}
         />

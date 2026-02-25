@@ -35,7 +35,7 @@ export function GalleryTab({ results, downloadFolder }: GalleryTabProps) {
   };
 
   if (results.length === 0) {
-    return <div style={{ color: '#888', textAlign: 'center', padding: '32px 0' }}>No results yet. Run some prompts first.</div>;
+    return <div style={{ color: '#7c809a', textAlign: 'center', padding: '32px 0' }}>No results yet. Run some prompts first.</div>;
   }
 
   return (
@@ -46,7 +46,7 @@ export function GalleryTab({ results, downloadFolder }: GalleryTabProps) {
           style={{
             width: '100%',
             padding: '8px',
-            background: '#1a73e8',
+            background: '#9366f0',
             color: '#fff',
             border: 'none',
             borderRadius: '6px',
@@ -68,11 +68,11 @@ export function GalleryTab({ results, downloadFolder }: GalleryTabProps) {
             key={item.id}
             onClick={() => toggleSelect(item.id)}
             style={{
-              border: selected.has(item.id) ? '2px solid #1a73e8' : '2px solid transparent',
+              border: selected.has(item.id) ? '2px solid #9366f0' : '2px solid transparent',
               borderRadius: '8px',
               overflow: 'hidden',
               cursor: 'pointer',
-              background: '#2a2a2a',
+              background: '#141926',
             }}
           >
             <img
@@ -83,7 +83,7 @@ export function GalleryTab({ results, downloadFolder }: GalleryTabProps) {
             <div style={{
               padding: '6px',
               fontSize: '11px',
-              color: '#aaa',
+              color: '#7c809a',
               overflow: 'hidden',
               textOverflow: 'ellipsis',
               whiteSpace: 'nowrap',

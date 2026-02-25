@@ -11,6 +11,8 @@ interface PanelProps {
   onClose: () => void;
 }
 
+const logoUrl = browser.runtime.getURL('/icon/logo.png');
+
 export function Panel({ onClose }: PanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>('queue');
   const settingsObj = useSettings();
@@ -24,14 +26,14 @@ export function Panel({ onClose }: PanelProps) {
         top: '0',
         width: '340px',
         height: '100vh',
-        background: '#1e1e1e',
-        color: '#e0e0e0',
+        background: '#0b0e15',
+        color: '#e2e4eb',
         display: 'flex',
         flexDirection: 'column',
         zIndex: 9999,
         fontFamily: 'system-ui, -apple-system, sans-serif',
         fontSize: '14px',
-        boxShadow: '-2px 0 8px rgba(0,0,0,0.3)',
+        boxShadow: '-2px 0 12px rgba(0,0,0,0.5)',
       }}
     >
       {/* Header */}
@@ -40,15 +42,18 @@ export function Panel({ onClose }: PanelProps) {
         justifyContent: 'space-between',
         alignItems: 'center',
         padding: '12px 16px',
-        borderBottom: '1px solid #333',
+        borderBottom: '1px solid #1f2637',
       }}>
-        <span style={{ fontWeight: 'bold', fontSize: '16px' }}>Magic Whisk</span>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <img src={logoUrl} alt="Magic Whisk" style={{ width: '40px', height: '40px', borderRadius: '8px' }} />
+          <span style={{ fontWeight: 'bold', fontSize: '16px', color: '#e2e4eb' }}>Magic Whisk</span>
+        </div>
         <button
           onClick={onClose}
           style={{
             background: 'none',
             border: 'none',
-            color: '#e0e0e0',
+            color: '#7c809a',
             cursor: 'pointer',
             fontSize: '18px',
           }}
@@ -58,7 +63,7 @@ export function Panel({ onClose }: PanelProps) {
       {/* Tab bar */}
       <div style={{
         display: 'flex',
-        borderBottom: '1px solid #333',
+        borderBottom: '1px solid #1f2637',
       }}>
         {(['queue', 'gallery', 'settings'] as Tab[]).map((tab) => (
           <button
@@ -67,10 +72,10 @@ export function Panel({ onClose }: PanelProps) {
             style={{
               flex: 1,
               padding: '8px',
-              background: activeTab === tab ? '#2a2a2a' : 'transparent',
+              background: activeTab === tab ? '#141926' : 'transparent',
               border: 'none',
-              borderBottom: activeTab === tab ? '2px solid #1a73e8' : '2px solid transparent',
-              color: activeTab === tab ? '#fff' : '#888',
+              borderBottom: activeTab === tab ? '2px solid #9366f0' : '2px solid transparent',
+              color: activeTab === tab ? '#e2e4eb' : '#7c809a',
               cursor: 'pointer',
               textTransform: 'capitalize',
             }}

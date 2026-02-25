@@ -8,5 +8,11 @@ export default defineConfig({
     description: 'Batch image generation for Google Whisk — queue prompts, auto-download results, browse in a gallery.',
     permissions: ['storage', 'downloads'],
     host_permissions: ['*://labs.google/*', '*://*.googleusercontent.com/*'],
+    web_accessible_resources: [
+      {
+        resources: ['icon/*'],
+        matches: ['*://labs.google/*'],
+      },
+    ],
   },
 });

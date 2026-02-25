@@ -45,9 +45,9 @@ export function QueueTab({
             width: '100%',
             padding: '8px',
             background: 'transparent',
-            border: '1px dashed #444',
+            border: '1px dashed #1f2637',
             borderRadius: '6px',
-            color: '#888',
+            color: '#7c809a',
             cursor: 'pointer',
             marginBottom: '16px',
           }}
@@ -64,8 +64,8 @@ export function QueueTab({
             style={{
               flex: 1,
               padding: '10px',
-              background: hasPrompts ? '#1a73e8' : '#333',
-              color: hasPrompts ? '#fff' : '#666',
+              background: hasPrompts ? '#9366f0' : '#141926',
+              color: hasPrompts ? '#fff' : '#4a4e63',
               border: 'none',
               borderRadius: '6px',
               cursor: hasPrompts ? 'pointer' : 'default',

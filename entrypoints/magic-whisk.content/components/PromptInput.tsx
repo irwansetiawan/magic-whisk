@@ -9,8 +9,8 @@ const STATUS_ICONS: Record<QueueItem['status'], string> = {
 };
 
 const STATUS_COLORS: Record<QueueItem['status'], string> = {
-  pending: '#888',
-  running: '#1a73e8',
+  pending: '#7c809a',
+  running: '#9366f0',
   done: '#34a853',
   failed: '#ea4335',
 };
@@ -50,10 +50,10 @@ export function PromptInput({ item, onChangePrompt, onRemove, disabled }: Prompt
           flex: 1,
           resize: 'none',
           overflow: 'hidden',
-          background: '#2a2a2a',
-          border: '1px solid #444',
+          background: '#141926',
+          border: '1px solid #1f2637',
           borderRadius: '6px',
-          color: '#e0e0e0',
+          color: '#e2e4eb',
           padding: '8px',
           fontSize: '13px',
           fontFamily: 'inherit',
@@ -78,7 +78,7 @@ export function PromptInput({ item, onChangePrompt, onRemove, disabled }: Prompt
           style={{
             background: 'none',
             border: 'none',
-            color: '#666',
+            color: '#4a4e63',
             cursor: 'pointer',
             fontSize: '16px',
             lineHeight: '36px',
