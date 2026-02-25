@@ -12,7 +12,7 @@ export function ToggleButton({ onClick, isOpen }: ToggleButtonProps) {
       style={{
         position: 'fixed',
         right: isOpen ? '340px' : '0',
-        top: '50%',
+        top: '25%',
         transform: 'translateY(-50%)',
         zIndex: 10000,
         width: '44px',
