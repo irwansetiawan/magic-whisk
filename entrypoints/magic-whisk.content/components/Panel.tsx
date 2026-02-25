@@ -160,21 +160,15 @@ export function Panel({ onClose, width, onResize }: PanelProps) {
           alignItems: 'center',
           gap: '8px',
         }}>
-          <div style={{ fontSize: '10px', color: '#4a4e63' }}>Magic Whisk is free and open source.</div>
+          <div style={{ fontSize: '10px', color: '#7c809a' }}>Magic Whisk is free and open source.</div>
           <a
             href="https://github.com/irwansetiawan/magic-whisk/issues"
             target="_blank"
             rel="noopener noreferrer"
             style={{
-              width: '100%',
-              padding: '7px',
-              background: 'transparent',
-              border: '1px solid #1f2637',
-              borderRadius: '8px',
               color: '#7c809a',
               fontSize: '11px',
               textDecoration: 'none',
-              textAlign: 'center',
               cursor: 'pointer',
             }}
           >💡 Feature request or bug? Let us know</a>
