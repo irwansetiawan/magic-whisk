@@ -12,6 +12,7 @@ interface PanelProps {
 }
 
 const logoUrl = browser.runtime.getURL('/icon/logo.png');
+const bmcQrUrl = browser.runtime.getURL('/icon/bmc-qr.png');
 
 export function Panel({ onClose }: PanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>('queue');
@@ -103,6 +104,28 @@ export function Panel({ onClose }: PanelProps) {
         {activeTab === 'gallery' && <GalleryTab results={queue.results} downloadFolder={settingsObj.settings.downloadFolder} />}
         {activeTab === 'settings' && <SettingsTab settings={settingsObj.settings} onUpdateSettings={settingsObj.updateSettings} />}
       </div>
+
+      {/* Buy Me a Coffee */}
+      <a
+        href="https://buymeacoffee.com/irwansetiawan"
+        target="_blank"
+        rel="noopener noreferrer"
+        style={{
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '8px',
+          padding: '20px 16px',
+          borderTop: '1px solid #1f2637',
+          background: '#141926',
+          textDecoration: 'none',
+          cursor: 'pointer',
+          flexShrink: 0,
+        }}
+      >
+        <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e4eb' }}>Enjoy Magic Whisk? Buy me a coffee ☕</div>
+        <img src={bmcQrUrl} alt="QR code" style={{ width: '140px', height: '140px', borderRadius: '8px' }} />
+      </a>
     </div>
   );
 }

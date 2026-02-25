@@ -1,9 +1,12 @@
 import { SELECTORS } from './selectors';
 import { waitForElement, waitForElementRemoved } from './observer';
+import type { AspectRatio } from '@/src/shared/types';
 
 export interface GenerationResult {
   imageUrls: string[];
 }
+
+const ASPECT_RATIOS: AspectRatio[] = ['1:1', '9:16', '16:9'];
 
 async function injectPrompt(prompt: string): Promise<void> {
   const input = await waitForElement(SELECTORS.promptInput, { timeout: 10000 });
@@ -98,6 +101,74 @@ async function waitForResult(existingImages: Set<string>): Promise<GenerationRes
   }
 
   return { imageUrls };
+}
+
+/**
+ * Find aspect ratio buttons on the Whisk page by their text content.
+ * These live inside a radix popover that must be open.
+ */
+function findRatioButtons(): Map<AspectRatio, HTMLButtonElement> {
+  const map = new Map<AspectRatio, HTMLButtonElement>();
+  document.querySelectorAll('button').forEach((btn) => {
+    const text = btn.textContent?.trim();
+    if (text && ASPECT_RATIOS.includes(text as AspectRatio)) {
+      map.set(text as AspectRatio, btn as HTMLButtonElement);
+    }
+  });
+  return map;
+}
+
+/**
+ * Read the currently selected aspect ratio from the Whisk page.
+ * Detects the active button by checking which one has a distinct background.
+ */
+export function readAspectRatioFromPage(): AspectRatio | null {
+  const buttons = findRatioButtons();
+  if (buttons.size === 0) return null;
+
+  // Collect classes — the active button has a unique class compared to inactive ones
+  const classMap = new Map<string, AspectRatio[]>();
+  for (const [ratio, btn] of buttons) {
+    const cls = btn.className;
+    const existing = classMap.get(cls) || [];
+    existing.push(ratio);
+    classMap.set(cls, existing);
+  }
+
+  // The class used by only one button is the active one
+  for (const [, ratios] of classMap) {
+    if (ratios.length === 1) return ratios[0];
+  }
+
+  return null;
+}
+
+/**
+ * Set the aspect ratio on the Whisk page by clicking the corresponding button.
+ * Opens the popover trigger if the buttons aren't visible.
+ */
+export async function setAspectRatioOnPage(ratio: AspectRatio): Promise<void> {
+  let buttons = findRatioButtons();
+
+  // If buttons not found, the popover is closed — find and click the trigger
+  if (buttons.size === 0) {
+    const triggers = document.querySelectorAll('button[aria-haspopup="dialog"]');
+    for (const trigger of triggers) {
+      (trigger as HTMLButtonElement).click();
+      await delay(300);
+      buttons = findRatioButtons();
+      if (buttons.size > 0) break;
+      // Wrong popover — close it
+      (trigger as HTMLButtonElement).click();
+      await delay(100);
+    }
+  }
+
+  const target = buttons.get(ratio);
+  if (target) {
+    target.click();
+    await delay(100);
+  }
 }
 
 export async function generateOne(prompt: string): Promise<GenerationResult> {
