@@ -9,9 +9,8 @@ export const SELECTORS = {
   // Generated result images — Whisk uses blob URLs for rendered images
   resultImage: 'img[src^="blob:"]',
 
-  // Loading/progress indicator — look for a spinner or progress element
-  // TODO: Inspect the loading state on Whisk and refine this selector
-  loadingIndicator: '[role="progressbar"], .loading-indicator',
+  // Loading indicator — Whisk uses a Lottie animation inside this container
+  loadingIndicator: '.lf-player-container',
 
   // Error message element
   // TODO: Inspect error states on Whisk and refine this selector
