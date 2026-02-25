@@ -14,6 +14,9 @@ export default defineBackground(() => {
           saveAs: false,
         }).then((downloadId) => {
           sendResponse({ success: true, downloadId });
+        }).catch((error) => {
+          console.error('Magic Whisk: download failed', error);
+          sendResponse({ success: false, error: String(error) });
         });
 
         return true; // keep message channel open for async response

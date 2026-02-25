@@ -44,26 +44,34 @@ export function useQueue(settings: Settings) {
         const item = queueItems.find((i) => i.id === id);
         if (item) addLog(`Running: "${item.prompt}"`, 'info');
       },
-      onItemDone: (id, resultItems) => {
+      onItemDone: async (id, resultItems) => {
         updateStatus(id, 'done');
         setResults((prev) => [...prev, ...resultItems]);
         const item = queueItems.find((i) => i.id === id);
         if (item) addLog(`Done: "${item.prompt}" (${resultItems.length} image${resultItems.length !== 1 ? 's' : ''})`, 'success');
 
         if (settingsRef.current.autoDownload) {
-          resultItems.forEach((result, i) => {
+          for (let i = 0; i < resultItems.length; i++) {
+            const result = resultItems[i];
             const suffix = resultItems.length > 1 ? `-${i + 1}` : '';
             const filename = `${sanitizeFilename(result.prompt)}${suffix}-${Date.now()}.png`;
             addLog(`Downloading: ${filename}`, 'info');
-            browser.runtime.sendMessage({
-              type: 'DOWNLOAD_IMAGE',
-              payload: {
-                imageUrl: result.imageUrl,
-                filename,
-                folder: settingsRef.current.downloadFolder,
-              },
-            });
-          });
+            try {
+              const response = await browser.runtime.sendMessage({
+                type: 'DOWNLOAD_IMAGE',
+                payload: {
+                  imageUrl: result.imageUrl,
+                  filename,
+                  folder: settingsRef.current.downloadFolder,
+                },
+              });
+              if (!response?.success) {
+                addLog(`Download failed: ${response?.error ?? 'unknown error'}`, 'error');
+              }
+            } catch (err) {
+              addLog(`Download failed: ${err}`, 'error');
+            }
+          }
         }
       },
       onItemFailed: (id, error) => {
