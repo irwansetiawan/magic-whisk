@@ -39,8 +39,14 @@ async function waitForResult(existingImages: Set<string>): Promise<GenerationRes
 
   // Wait for a NEW image that wasn't in the DOM before generation
   const imageUrl = await new Promise<string>((resolve, reject) => {
+    let observer: MutationObserver | null = null;
+
+    const cleanup = () => {
+      observer?.disconnect();
+    };
+
     const timeout = setTimeout(() => {
-      observer.disconnect();
+      cleanup();
       reject(new Error('Timeout waiting for new generated image'));
     }, 30000);
 
@@ -50,7 +56,7 @@ async function waitForResult(existingImages: Set<string>): Promise<GenerationRes
         const src = (img as HTMLImageElement).src;
         if (src && !existingImages.has(src)) {
           clearTimeout(timeout);
-          observer.disconnect();
+          cleanup();
           resolve(src);
           return true;
         }
@@ -58,11 +64,11 @@ async function waitForResult(existingImages: Set<string>): Promise<GenerationRes
       return false;
     };
 
-    // Check immediately
+    // Check immediately — image may already be in the DOM
     if (checkForNewImage()) return;
 
     // Otherwise observe for changes
-    const observer = new MutationObserver(() => {
+    observer = new MutationObserver(() => {
       checkForNewImage();
     });
 
