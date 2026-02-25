@@ -73,6 +73,7 @@ export function QueueTab({
 
       {isRunning && items.length > 0 && (
         <div style={{ marginBottom: '12px' }}>
+          <ProgressBar items={items} />
           {items.map((item) => (
             <div
               key={item.id}
@@ -159,6 +160,44 @@ export function QueueTab({
             </button>
           </>
         )}
+      </div>
+    </div>
+  );
+}
+
+function ProgressBar({ items }: { items: QueueItem[] }) {
+  const total = items.length;
+  const done = items.filter((i) => i.status === 'done' || i.status === 'failed').length;
+  const pct = total > 0 ? Math.round((done / total) * 100) : 0;
+
+  return (
+    <div style={{ marginBottom: '14px' }}>
+      <div style={{
+        display: 'flex',
+        justifyContent: 'space-between',
+        alignItems: 'baseline',
+        marginBottom: '6px',
+      }}>
+        <span style={{ fontSize: '13px', fontWeight: 600, color: '#e2e4eb' }}>
+          Processing {done}/{total}
+        </span>
+        <span style={{ fontSize: '12px', color: '#7c809a' }}>
+          {pct}%
+        </span>
+      </div>
+      <div style={{
+        height: '6px',
+        borderRadius: '3px',
+        background: '#1a1e2e',
+        overflow: 'hidden',
+      }}>
+        <div style={{
+          height: '100%',
+          width: `${pct}%`,
+          borderRadius: '3px',
+          background: 'linear-gradient(90deg, #7c4dff, #9366f0, #b388ff)',
+          transition: 'width 0.4s ease',
+        }} />
       </div>
     </div>
   );
