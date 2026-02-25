@@ -156,6 +156,23 @@ export function Panel({ onClose }: PanelProps) {
             }}
           >♥ GitHub Sponsor</a>
         </div>
+        <a
+          href="https://github.com/irwansetiawan/magic-whisk/issues"
+          target="_blank"
+          rel="noopener noreferrer"
+          style={{
+            width: '100%',
+            padding: '7px',
+            background: 'transparent',
+            border: '1px solid #1f2637',
+            borderRadius: '8px',
+            color: '#7c809a',
+            fontSize: '11px',
+            textDecoration: 'none',
+            textAlign: 'center',
+            cursor: 'pointer',
+          }}
+        >💡 Feature request or bug? Let us know</a>
       </div>
     </div>
   );
