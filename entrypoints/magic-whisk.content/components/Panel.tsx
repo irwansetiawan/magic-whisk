@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { QueueTab } from './QueueTab';
 import { GalleryTab } from './GalleryTab';
 import { SettingsTab } from './SettingsTab';
@@ -105,17 +105,91 @@ export function Panel({ onClose }: PanelProps) {
         {activeTab === 'settings' && <SettingsTab settings={settingsObj.settings} onUpdateSettings={settingsObj.updateSettings} />}
       </div>
 
-      {/* Support */}
+      {/* Footer */}
       <div style={{
         borderTop: '1px solid #1f2637',
         background: '#141926',
-        padding: '16px',
         flexShrink: 0,
+        overflow: 'hidden',
+      }}>
+        {/* Sponsor section — slides up after 5s, dismissible */}
+        <SponsorBanner bmcQrUrl={bmcQrUrl} />
+
+        {/* Always visible */}
+        <div style={{
+          padding: '10px 16px',
+          display: 'flex',
+          flexDirection: 'column',
+          alignItems: 'center',
+          gap: '8px',
+        }}>
+          <div style={{ fontSize: '10px', color: '#4a4e63' }}>Magic Whisk is free and open source.</div>
+          <a
+            href="https://github.com/irwansetiawan/magic-whisk/issues"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              width: '100%',
+              padding: '7px',
+              background: 'transparent',
+              border: '1px solid #1f2637',
+              borderRadius: '8px',
+              color: '#7c809a',
+              fontSize: '11px',
+              textDecoration: 'none',
+              textAlign: 'center',
+              cursor: 'pointer',
+            }}
+          >💡 Feature request or bug? Let us know</a>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SponsorBanner({ bmcQrUrl }: { bmcQrUrl: string }) {
+  const [visible, setVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
+
+  useEffect(() => {
+    const timer = setTimeout(() => setVisible(true), 5000);
+    return () => clearTimeout(timer);
+  }, []);
+
+  if (dismissed) return null;
+
+  return (
+    <div style={{
+      maxHeight: visible ? '300px' : '0',
+      opacity: visible ? 1 : 0,
+      transition: 'max-height 0.6s ease, opacity 0.6s ease',
+      overflow: 'hidden',
+    }}>
+      <div style={{
+        padding: '16px',
         display: 'flex',
         flexDirection: 'column',
         alignItems: 'center',
         gap: '12px',
+        borderBottom: '1px solid #1f2637',
+        position: 'relative',
       }}>
+        <button
+          onClick={() => setDismissed(true)}
+          style={{
+            position: 'absolute',
+            top: '8px',
+            right: '8px',
+            background: 'none',
+            border: 'none',
+            color: '#4a4e63',
+            cursor: 'pointer',
+            fontSize: '14px',
+            lineHeight: 1,
+            padding: '2px',
+          }}
+          title="Dismiss"
+        >{'\u00D7'}</button>
         <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e4eb' }}>Enjoy Magic Whisk?</div>
         <img src={bmcQrUrl} alt="QR code" style={{ width: '120px', height: '120px', borderRadius: '8px' }} />
         <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
@@ -156,24 +230,6 @@ export function Panel({ onClose }: PanelProps) {
             }}
           >♥ GitHub Sponsor</a>
         </div>
-        <div style={{ fontSize: '10px', color: '#4a4e63' }}>Magic Whisk is free and open source.</div>
-        <a
-          href="https://github.com/irwansetiawan/magic-whisk/issues"
-          target="_blank"
-          rel="noopener noreferrer"
-          style={{
-            width: '100%',
-            padding: '7px',
-            background: 'transparent',
-            border: '1px solid #1f2637',
-            borderRadius: '8px',
-            color: '#7c809a',
-            fontSize: '11px',
-            textDecoration: 'none',
-            textAlign: 'center',
-            cursor: 'pointer',
-          }}
-        >💡 Feature request or bug? Let us know</a>
       </div>
     </div>
   );
