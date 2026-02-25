@@ -1,5 +1,6 @@
-import { useState, useCallback, useRef } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import type { QueueItem, ResultItem, LogEntry, Settings } from '@/src/shared/types';
+import { queueStorage, resultsStorage, logsStorage } from '@/src/shared/storage';
 import { runQueue } from '@/src/automation/runner';
 
 export function useQueue(settings: Settings) {
@@ -15,6 +16,30 @@ export function useQueue(settings: Settings) {
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 
+  // Load persisted state on mount
+  useEffect(() => {
+    Promise.all([
+      queueStorage.getValue(),
+      resultsStorage.getValue(),
+      logsStorage.getValue(),
+    ]).then(([storedItems, storedResults, storedLogs]) => {
+      if (storedItems?.length) {
+        // Reset any stale 'running' items to 'pending' (from a previous crash/close)
+        const fixed = storedItems.map((item) =>
+          item.status === 'running' ? { ...item, status: 'pending' as const } : item
+        );
+        setItems(fixed);
+      }
+      if (storedResults?.length) setResults(storedResults);
+      if (storedLogs?.length) setLogs(storedLogs);
+    });
+  }, []);
+
+  // Persist items whenever they change
+  useEffect(() => { queueStorage.setValue(items); }, [items]);
+  useEffect(() => { resultsStorage.setValue(results); }, [results]);
+  useEffect(() => { logsStorage.setValue(logs); }, [logs]);
+
   const addLog = useCallback((message: string, type: LogEntry['type']) => {
     setLogs((prev) => [...prev, { timestamp: Date.now(), message, type }]);
   }, []);
@@ -25,29 +50,27 @@ export function useQueue(settings: Settings) {
     );
   }, []);
 
-  const start = useCallback(() => {
-    const lines = bulkText.split('\n').map((l) => l.trim()).filter((l) => l !== '');
-    if (lines.length === 0) return;
-
-    const queueItems = lines.map(createItem);
-    setItems(queueItems);
+  const launchRunner = useCallback((allItems: QueueItem[]) => {
+    setItems(allItems);
+    setBulkText('');
     setIsRunning(true);
     setIsPaused(false);
     isPausedRef.current = false;
     isStoppedRef.current = false;
 
-    addLog(`Starting queue (${lines.length} prompts)`, 'info');
+    const pendingCount = allItems.filter((i) => i.status === 'pending').length;
+    addLog(`Starting queue (${pendingCount} pending prompt${pendingCount !== 1 ? 's' : ''})`, 'info');
 
-    runQueue(queueItems, {
+    runQueue(allItems, {
       onItemStart: (id) => {
         updateStatus(id, 'running');
-        const item = queueItems.find((i) => i.id === id);
+        const item = allItems.find((i) => i.id === id);
         if (item) addLog(`Running: "${item.prompt}"`, 'info');
       },
       onItemDone: async (id, resultItems) => {
         updateStatus(id, 'done');
         setResults((prev) => [...prev, ...resultItems]);
-        const item = queueItems.find((i) => i.id === id);
+        const item = allItems.find((i) => i.id === id);
         if (item) addLog(`Done: "${item.prompt}" (${resultItems.length} image${resultItems.length !== 1 ? 's' : ''})`, 'success');
 
         if (settingsRef.current.autoDownload) {
@@ -76,7 +99,7 @@ export function useQueue(settings: Settings) {
       },
       onItemFailed: (id, error) => {
         updateStatus(id, 'failed', error);
-        const item = queueItems.find((i) => i.id === id);
+        const item = allItems.find((i) => i.id === id);
         if (item) addLog(`Failed: "${item.prompt}" — ${error}`, 'error');
       },
       onComplete: () => {
@@ -87,7 +110,41 @@ export function useQueue(settings: Settings) {
       shouldPause: () => isPausedRef.current,
       shouldStop: () => isStoppedRef.current,
     });
-  }, [bulkText, updateStatus, addLog]);
+  }, [updateStatus, addLog]);
+
+  const parseNewItems = (): QueueItem[] => {
+    const lines = bulkText.split('\n').map((l) => l.trim()).filter((l) => l !== '');
+    return lines.map(createItem);
+  };
+
+  const start = useCallback(() => {
+    if (items.length > 0) return;
+    const newItems = parseNewItems();
+    if (newItems.length === 0) return;
+    launchRunner(newItems);
+  }, [bulkText, items.length, launchRunner]);
+
+  const startOver = useCallback(() => {
+    const resetExisting = items.map((item) => ({ ...item, status: 'pending' as const, error: undefined }));
+    const newItems = parseNewItems();
+    launchRunner([...resetExisting, ...newItems]);
+  }, [bulkText, items, launchRunner]);
+
+  const resume = useCallback(() => {
+    const newItems = parseNewItems();
+    const allItems = [...items, ...newItems];
+    const hasPending = allItems.some((i) => i.status === 'pending');
+    if (!hasPending) return;
+    launchRunner(allItems);
+  }, [bulkText, items, launchRunner]);
+
+  const removeItem = useCallback((id: string) => {
+    setItems((prev) => prev.filter((item) => item.id !== id));
+  }, []);
+
+  const clearItems = useCallback(() => {
+    setItems([]);
+  }, []);
 
   const pause = useCallback(() => {
     setIsPaused((prev) => {
@@ -100,6 +157,9 @@ export function useQueue(settings: Settings) {
   const stop = useCallback(() => {
     isStoppedRef.current = true;
     setIsRunning(false);
+    setItems((prev) =>
+      prev.map((item) => (item.status === 'running' ? { ...item, status: 'pending' as const } : item))
+    );
   }, []);
 
   return {
@@ -111,8 +171,12 @@ export function useQueue(settings: Settings) {
     results,
     logs,
     start,
+    startOver,
+    resume,
     pause,
     stop,
+    removeItem,
+    clearItems,
   };
 }
 

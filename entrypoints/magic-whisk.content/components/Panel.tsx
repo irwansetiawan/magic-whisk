@@ -133,8 +133,12 @@ export function Panel({ onClose, width, onResize }: PanelProps) {
             isPaused={queue.isPaused}
             aspectRatio={aspectRatio}
             onStart={queue.start}
+            onStartOver={queue.startOver}
+            onResume={queue.resume}
             onPause={queue.pause}
             onStop={queue.stop}
+            onRemoveItem={queue.removeItem}
+            onClearItems={queue.clearItems}
           />
         )}
         {activeTab === 'gallery' && <GalleryTab results={queue.results} downloadFolder={settingsObj.settings.downloadFolder} />}

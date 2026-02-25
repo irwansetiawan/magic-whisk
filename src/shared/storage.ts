@@ -1,5 +1,5 @@
 import { storage } from 'wxt/utils/storage';
-import type { QueueItem, ResultItem, Settings } from './types';
+import type { QueueItem, ResultItem, LogEntry, Settings } from './types';
 import { DEFAULT_SETTINGS } from './types';
 
 export const queueStorage = storage.defineItem<QueueItem[]>('local:queue', {
@@ -7,6 +7,10 @@ export const queueStorage = storage.defineItem<QueueItem[]>('local:queue', {
 });
 
 export const resultsStorage = storage.defineItem<ResultItem[]>('local:results', {
+  fallback: [],
+});
+
+export const logsStorage = storage.defineItem<LogEntry[]>('local:logs', {
   fallback: [],
 });
 
