@@ -1,8 +1,8 @@
 {
   "name": "magic-whisk",
-  "description": "Chrome extension for batch automation of Google Whisk",
+  "description": "Chrome extension that automates batch image generation on Google Whisk. Queue multiple prompts, auto-download all generated images, and browse results in a built-in gallery — all from a slide-out panel injected directly into the Whisk page.",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
     "dev": "wxt",
