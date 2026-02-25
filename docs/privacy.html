@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Privacy Policy — Magic Whisk</title>
+  <link rel="icon" type="image/png" href="logo.jpeg">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0b0e15;
+      --surface: #141926;
+      --border: #1f2637;
+      --purple: #9366f0;
+      --text: #e2e4eb;
+      --text-secondary: #7c809a;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.7;
+    }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 60px 24px;
+    }
+
+    a { color: var(--purple); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .back { display: inline-block; margin-bottom: 32px; font-size: 0.9rem; color: var(--text-secondary); }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+
+    .updated {
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      margin-bottom: 40px;
+    }
+
+    h2 {
+      font-size: 1.2rem;
+      margin-top: 36px;
+      margin-bottom: 12px;
+      color: var(--text);
+    }
+
+    p, ul {
+      color: var(--text-secondary);
+      margin-bottom: 16px;
+      font-size: 0.95rem;
+    }
+
+    ul { padding-left: 24px; }
+    li { margin-bottom: 8px; }
+
+    .highlight {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 20px 24px;
+      margin: 24px 0;
+    }
+
+    .highlight p { margin-bottom: 0; color: var(--text); }
+
+    footer {
+      margin-top: 60px;
+      padding-top: 24px;
+      border-top: 1px solid var(--border);
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="./" class="back">&larr; Back to Magic Whisk</a>
+
+    <h1>Privacy Policy</h1>
+    <p class="updated">Last updated: February 25, 2026</p>
+
+    <div class="highlight">
+      <p><strong>TL;DR:</strong> Magic Whisk runs entirely in your browser. It does not collect, transmit, or store any personal data on external servers. There is no analytics, no tracking, and no telemetry.</p>
+    </div>
+
+    <h2>What data does Magic Whisk access?</h2>
+    <p>Magic Whisk interacts with the Google Whisk page at <strong>labs.google/fx/tools/whisk</strong> to automate image generation on your behalf. It accesses:</p>
+    <ul>
+      <li><strong>Prompts you type</strong> — entered directly in the extension's side panel. These are injected into the Whisk page's textarea to trigger generation. They are never sent anywhere else.</li>
+      <li><strong>Generated images</strong> — collected from the Whisk page DOM so they can be displayed in the gallery and optionally downloaded to your computer.</li>
+      <li><strong>Your preferences</strong> — settings like delay between generations, auto-download toggle, and download folder name are stored locally in your browser using <code>chrome.storage.local</code>.</li>
+    </ul>
+
+    <h2>What data is stored?</h2>
+    <p>All data is stored locally on your device using the Chrome extension storage API:</p>
+    <ul>
+      <li>User preferences (delay, auto-download, folder name)</li>
+    </ul>
+    <p>No data is stored on any external server or cloud service.</p>
+
+    <h2>What data is shared or transmitted?</h2>
+    <p><strong>None.</strong> Magic Whisk does not transmit any data to external servers. It does not contain analytics, tracking pixels, telemetry, or any form of data collection. The extension communicates only between its own content script and background service worker within your browser.</p>
+
+    <h2>Third-party services</h2>
+    <p>Magic Whisk does not integrate with any third-party services. It operates solely on the Google Whisk page using your existing Google account session. The extension does not access, read, or store your Google credentials.</p>
+
+    <h2>Permissions explained</h2>
+    <ul>
+      <li><strong>storage</strong> — Save your preferences locally across browser sessions.</li>
+      <li><strong>downloads</strong> — Save generated images to your downloads folder when auto-download is enabled or when you manually download from the gallery.</li>
+      <li><strong>Host access (labs.google)</strong> — Inject the side panel and automation scripts into the Google Whisk page.</li>
+      <li><strong>Host access (googleusercontent.com)</strong> — Access generated image URLs served from Google's CDN for display and download.</li>
+    </ul>
+
+    <h2>Changes to this policy</h2>
+    <p>If this privacy policy changes, the updated version will be posted on this page with a new "Last updated" date.</p>
+
+    <h2>Contact</h2>
+    <p>If you have questions about this privacy policy, please open an issue on <a href="https://github.com/irwansetiawan/magic-whisk/issues">GitHub</a>.</p>
+
+    <footer>
+      <p><a href="./">Magic Whisk</a> &middot; <a href="https://github.com/irwansetiawan/magic-whisk">GitHub</a></p>
+    </footer>
+  </div>
+</body>
+</html>
