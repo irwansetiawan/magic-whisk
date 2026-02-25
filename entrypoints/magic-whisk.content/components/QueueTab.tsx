@@ -141,7 +141,7 @@ export function QueueTab({
             placeholder={hasItems
               ? 'Add more prompts...'
               : "Enter prompts, one per line...\n\nExample:\na cat wearing a top hat\na dog surfing a wave\na robot painting a sunset"}
-            rows={hasItems ? 4 : 10}
+            rows={hasItems ? 12 : 25}
             style={{
               width: '100%',
               resize: 'vertical',
