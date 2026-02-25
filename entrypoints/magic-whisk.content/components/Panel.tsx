@@ -147,14 +147,29 @@ export function Panel({ onClose }: PanelProps) {
   );
 }
 
+const SPONSOR_DISMISSED_KEY = 'local:sponsorDismissedAt';
+const SPONSOR_COOLDOWN_MS = 24 * 60 * 60 * 1000; // 24 hours
+
 function SponsorBanner({ bmcQrUrl }: { bmcQrUrl: string }) {
   const [visible, setVisible] = useState(false);
-  const [dismissed, setDismissed] = useState(false);
+  const [dismissed, setDismissed] = useState(true); // hidden until we check storage
 
+  // Check if the banner was dismissed within the last 24h
   useEffect(() => {
-    const timer = setTimeout(() => setVisible(true), 5000);
-    return () => clearTimeout(timer);
+    browser.storage.local.get(SPONSOR_DISMISSED_KEY).then((result) => {
+      const dismissedAt = result[SPONSOR_DISMISSED_KEY] as number | undefined;
+      if (!dismissedAt || Date.now() - dismissedAt > SPONSOR_COOLDOWN_MS) {
+        setDismissed(false);
+        const timer = setTimeout(() => setVisible(true), 5000);
+        return () => clearTimeout(timer);
+      }
+    });
   }, []);
+
+  const handleDismiss = () => {
+    setDismissed(true);
+    browser.storage.local.set({ [SPONSOR_DISMISSED_KEY]: Date.now() });
+  };
 
   if (dismissed) return null;
 
@@ -175,7 +190,7 @@ function SponsorBanner({ bmcQrUrl }: { bmcQrUrl: string }) {
         position: 'relative',
       }}>
         <button
-          onClick={() => setDismissed(true)}
+          onClick={handleDismiss}
           style={{
             position: 'absolute',
             top: '8px',
