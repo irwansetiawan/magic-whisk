@@ -1,78 +1,128 @@
 import type { QueueItem } from '@/src/shared/types';
-import { PromptInput } from './PromptInput';
+
+const STATUS_ICONS: Record<QueueItem['status'], string> = {
+  pending: '○',
+  running: '⟳',
+  done: '✓',
+  failed: '✗',
+};
+
+const STATUS_COLORS: Record<QueueItem['status'], string> = {
+  pending: '#7c809a',
+  running: '#9366f0',
+  done: '#34a853',
+  failed: '#ea4335',
+};
 
 interface QueueTabProps {
+  bulkText: string;
+  onBulkTextChange: (text: string) => void;
   items: QueueItem[];
   isRunning: boolean;
   isPaused: boolean;
-  onAddItem: () => void;
-  onRemoveItem: (id: string) => void;
-  onUpdatePrompt: (id: string, prompt: string) => void;
   onStart: () => void;
   onPause: () => void;
   onStop: () => void;
 }
 
 export function QueueTab({
+  bulkText,
+  onBulkTextChange,
   items,
   isRunning,
   isPaused,
-  onAddItem,
-  onRemoveItem,
-  onUpdatePrompt,
   onStart,
   onPause,
   onStop,
 }: QueueTabProps) {
-  const hasPrompts = items.some((item) => item.prompt.trim() !== '');
+  const promptCount = bulkText.split('\n').filter((l) => l.trim() !== '').length;
 
   return (
     <div>
-      {items.map((item) => (
-        <PromptInput
-          key={item.id}
-          item={item}
-          onChangePrompt={(prompt) => onUpdatePrompt(item.id, prompt)}
-          onRemove={() => onRemoveItem(item.id)}
-          disabled={isRunning && item.status !== 'pending'}
-        />
-      ))}
-
       {!isRunning && (
-        <button
-          onClick={onAddItem}
-          style={{
-            width: '100%',
-            padding: '8px',
-            background: 'transparent',
-            border: '1px dashed #1f2637',
-            borderRadius: '6px',
+        <>
+          <textarea
+            value={bulkText}
+            onChange={(e) => onBulkTextChange(e.target.value)}
+            placeholder={"Enter prompts, one per line...\n\nExample:\na cat wearing a top hat\na dog surfing a wave\na robot painting a sunset"}
+            rows={10}
+            style={{
+              width: '100%',
+              resize: 'vertical',
+              background: '#141926',
+              border: '1px solid #1f2637',
+              borderRadius: '6px',
+              color: '#e2e4eb',
+              padding: '10px',
+              fontSize: '13px',
+              fontFamily: 'inherit',
+              lineHeight: '1.5',
+              boxSizing: 'border-box',
+            }}
+          />
+          <div style={{
+            fontSize: '12px',
             color: '#7c809a',
-            cursor: 'pointer',
-            marginBottom: '16px',
-          }}
-        >
-          + Add Prompt
-        </button>
+            marginTop: '6px',
+            marginBottom: '12px',
+          }}>
+            {promptCount} prompt{promptCount !== 1 ? 's' : ''}
+          </div>
+        </>
+      )}
+
+      {isRunning && items.length > 0 && (
+        <div style={{ marginBottom: '12px' }}>
+          {items.map((item) => (
+            <div
+              key={item.id}
+              style={{
+                display: 'flex',
+                alignItems: 'flex-start',
+                gap: '8px',
+                padding: '6px 0',
+                borderBottom: '1px solid #1a1e2e',
+              }}
+            >
+              <span style={{
+                color: STATUS_COLORS[item.status],
+                fontSize: '14px',
+                minWidth: '18px',
+                textAlign: 'center',
+                lineHeight: '20px',
+              }}>
+                {STATUS_ICONS[item.status]}
+              </span>
+              <span style={{
+                fontSize: '13px',
+                color: item.status === 'running' ? '#e2e4eb' : '#7c809a',
+                lineHeight: '20px',
+                wordBreak: 'break-word',
+              }}>
+                {item.prompt}
+              </span>
+            </div>
+          ))}
+        </div>
       )}
 
       <div style={{ display: 'flex', gap: '8px', marginTop: '12px' }}>
         {!isRunning && (
           <button
             onClick={onStart}
-            disabled={!hasPrompts}
+            disabled={promptCount === 0}
             style={{
               flex: 1,
               padding: '10px',
-              background: hasPrompts ? '#9366f0' : '#141926',
-              color: hasPrompts ? '#fff' : '#4a4e63',
+              background: promptCount > 0 ? '#9366f0' : '#141926',
+              color: promptCount > 0 ? '#fff' : '#4a4e63',
               border: 'none',
               borderRadius: '6px',
-              cursor: hasPrompts ? 'pointer' : 'default',
+              cursor: promptCount > 0 ? 'pointer' : 'default',
               fontWeight: 'bold',
             }}
           >
-            ▶ Start
+            Start
           </button>
         )}
         {isRunning && (
@@ -90,7 +140,7 @@ export function QueueTab({
                 fontWeight: 'bold',
               }}
             >
-              {isPaused ? '▶ Resume' : '⏸ Pause'}
+              {isPaused ? 'Resume' : 'Pause'}
             </button>
             <button
               onClick={onStop}
@@ -105,7 +155,7 @@ export function QueueTab({
                 fontWeight: 'bold',
               }}
             >
-              ■ Stop
+              Stop
             </button>
           </>
         )}

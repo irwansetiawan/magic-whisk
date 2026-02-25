@@ -15,6 +15,12 @@ export interface ResultItem {
   createdAt: number;
 }
 
+export interface LogEntry {
+  timestamp: number;
+  message: string;
+  type: 'info' | 'success' | 'error';
+}
+
 export interface Settings {
   delayBetweenGenerations: number;
   autoDownload: boolean;

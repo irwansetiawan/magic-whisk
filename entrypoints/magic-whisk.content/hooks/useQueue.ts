@@ -1,32 +1,22 @@
 import { useState, useCallback, useRef } from 'react';
-import type { QueueItem, ResultItem, Settings } from '@/src/shared/types';
+import type { QueueItem, ResultItem, LogEntry, Settings } from '@/src/shared/types';
 import { runQueue } from '@/src/automation/runner';
 
 export function useQueue(settings: Settings) {
-  const [items, setItems] = useState<QueueItem[]>([
-    createItem(''),
-  ]);
+  const [bulkText, setBulkText] = useState('');
+  const [items, setItems] = useState<QueueItem[]>([]);
   const [isRunning, setIsRunning] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
   const [results, setResults] = useState<ResultItem[]>([]);
+  const [logs, setLogs] = useState<LogEntry[]>([]);
 
   const isPausedRef = useRef(false);
   const isStoppedRef = useRef(false);
   const settingsRef = useRef(settings);
   settingsRef.current = settings;
 
-  const addItem = useCallback(() => {
-    setItems((prev) => [...prev, createItem('')]);
-  }, []);
-
-  const removeItem = useCallback((id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
-  }, []);
-
-  const updatePrompt = useCallback((id: string, prompt: string) => {
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, prompt } : item))
-    );
+  const addLog = useCallback((message: string, type: LogEntry['type']) => {
+    setLogs((prev) => [...prev, { timestamp: Date.now(), message, type }]);
   }, []);
 
   const updateStatus = useCallback((id: string, status: QueueItem['status'], error?: string) => {
@@ -36,39 +26,60 @@ export function useQueue(settings: Settings) {
   }, []);
 
   const start = useCallback(() => {
+    const lines = bulkText.split('\n').map((l) => l.trim()).filter((l) => l !== '');
+    if (lines.length === 0) return;
+
+    const queueItems = lines.map(createItem);
+    setItems(queueItems);
     setIsRunning(true);
     setIsPaused(false);
     isPausedRef.current = false;
     isStoppedRef.current = false;
 
-    runQueue(items, {
-      onItemStart: (id) => updateStatus(id, 'running'),
-      onItemDone: (id, results) => {
-        updateStatus(id, 'done');
-        setResults((prev) => [...prev, ...results]);
+    addLog(`Starting queue (${lines.length} prompts)`, 'info');
 
-        // Auto-download all generated images via background service worker
+    runQueue(queueItems, {
+      onItemStart: (id) => {
+        updateStatus(id, 'running');
+        const item = queueItems.find((i) => i.id === id);
+        if (item) addLog(`Running: "${item.prompt}"`, 'info');
+      },
+      onItemDone: (id, resultItems) => {
+        updateStatus(id, 'done');
+        setResults((prev) => [...prev, ...resultItems]);
+        const item = queueItems.find((i) => i.id === id);
+        if (item) addLog(`Done: "${item.prompt}" (${resultItems.length} image${resultItems.length !== 1 ? 's' : ''})`, 'success');
+
         if (settingsRef.current.autoDownload) {
-          results.forEach((result, i) => {
-            const suffix = results.length > 1 ? `-${i + 1}` : '';
+          resultItems.forEach((result, i) => {
+            const suffix = resultItems.length > 1 ? `-${i + 1}` : '';
+            const filename = `${sanitizeFilename(result.prompt)}${suffix}-${Date.now()}.png`;
+            addLog(`Downloading: ${filename}`, 'info');
             browser.runtime.sendMessage({
               type: 'DOWNLOAD_IMAGE',
               payload: {
                 imageUrl: result.imageUrl,
-                filename: `${sanitizeFilename(result.prompt)}${suffix}-${Date.now()}.png`,
+                filename,
                 folder: settingsRef.current.downloadFolder,
               },
             });
           });
         }
       },
-      onItemFailed: (id, error) => updateStatus(id, 'failed', error),
-      onComplete: () => setIsRunning(false),
+      onItemFailed: (id, error) => {
+        updateStatus(id, 'failed', error);
+        const item = queueItems.find((i) => i.id === id);
+        if (item) addLog(`Failed: "${item.prompt}" — ${error}`, 'error');
+      },
+      onComplete: () => {
+        setIsRunning(false);
+        addLog('Queue complete', 'info');
+      },
       getSettings: () => settingsRef.current,
       shouldPause: () => isPausedRef.current,
       shouldStop: () => isStoppedRef.current,
     });
-  }, [items, updateStatus]);
+  }, [bulkText, updateStatus, addLog]);
 
   const pause = useCallback(() => {
     setIsPaused((prev) => {
@@ -84,17 +95,13 @@ export function useQueue(settings: Settings) {
   }, []);
 
   return {
+    bulkText,
+    setBulkText,
     items,
-    setItems,
     isRunning,
-    setIsRunning,
     isPaused,
-    setIsPaused,
     results,
-    addItem,
-    removeItem,
-    updatePrompt,
-    updateStatus,
+    logs,
     start,
     pause,
     stop,

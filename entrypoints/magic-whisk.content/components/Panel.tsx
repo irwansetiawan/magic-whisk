@@ -2,10 +2,11 @@ import { useState, useEffect } from 'react';
 import { QueueTab } from './QueueTab';
 import { GalleryTab } from './GalleryTab';
 import { SettingsTab } from './SettingsTab';
+import { LogsTab } from './LogsTab';
 import { useQueue } from '../hooks/useQueue';
 import { useSettings } from '../hooks/useSettings';
 
-type Tab = 'queue' | 'gallery' | 'settings';
+type Tab = 'queue' | 'gallery' | 'logs' | 'settings';
 
 interface PanelProps {
   onClose: () => void;
@@ -66,7 +67,7 @@ export function Panel({ onClose }: PanelProps) {
         display: 'flex',
         borderBottom: '1px solid #1f2637',
       }}>
-        {(['queue', 'gallery', 'settings'] as Tab[]).map((tab) => (
+        {(['queue', 'gallery', 'logs', 'settings'] as Tab[]).map((tab) => (
           <button
             key={tab}
             onClick={() => setActiveTab(tab)}
@@ -81,7 +82,7 @@ export function Panel({ onClose }: PanelProps) {
               textTransform: 'capitalize',
             }}
           >
-            {tab === 'settings' ? '\u2699' : tab}
+            {tab === 'settings' ? '\u2699' : tab === 'logs' ? '\u25A3' : tab}
           </button>
         ))}
       </div>
@@ -90,18 +91,18 @@ export function Panel({ onClose }: PanelProps) {
       <div style={{ flex: 1, overflow: 'auto', padding: '16px' }}>
         {activeTab === 'queue' && (
           <QueueTab
+            bulkText={queue.bulkText}
+            onBulkTextChange={queue.setBulkText}
             items={queue.items}
             isRunning={queue.isRunning}
             isPaused={queue.isPaused}
-            onAddItem={queue.addItem}
-            onRemoveItem={queue.removeItem}
-            onUpdatePrompt={queue.updatePrompt}
             onStart={queue.start}
             onPause={queue.pause}
             onStop={queue.stop}
           />
         )}
         {activeTab === 'gallery' && <GalleryTab results={queue.results} downloadFolder={settingsObj.settings.downloadFolder} />}
+        {activeTab === 'logs' && <LogsTab logs={queue.logs} />}
         {activeTab === 'settings' && <SettingsTab settings={settingsObj.settings} onUpdateSettings={settingsObj.updateSettings} />}
       </div>
 
