@@ -68,7 +68,7 @@ export function PromptInput({ item, onChangePrompt, onRemove, disabled }: Prompt
           minWidth: '20px',
           textAlign: 'center',
         }}
-        title={item.status}
+        title={item.error || item.status}
       >
         {STATUS_ICONS[item.status]}
       </span>

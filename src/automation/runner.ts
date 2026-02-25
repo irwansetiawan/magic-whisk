@@ -43,6 +43,7 @@ export async function runQueue(
       callbacks.onItemDone(item.id, resultItem);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
+      console.error(`[Magic Whisk] Item "${item.prompt.slice(0, 40)}" failed:`, err);
       callbacks.onItemFailed(item.id, message);
     }
 
