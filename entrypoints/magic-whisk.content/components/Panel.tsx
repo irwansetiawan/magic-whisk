@@ -5,6 +5,7 @@ import { SettingsTab } from './SettingsTab';
 import { LogsTab } from './LogsTab';
 import { useQueue } from '../hooks/useQueue';
 import { useSettings } from '../hooks/useSettings';
+import { useAspectRatio } from '../hooks/useAspectRatio';
 
 type Tab = 'queue' | 'gallery' | 'logs' | 'settings';
 
@@ -19,6 +20,7 @@ export function Panel({ onClose }: PanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>('queue');
   const settingsObj = useSettings();
   const queue = useQueue(settingsObj.settings);
+  const aspectRatio = useAspectRatio();
 
   return (
     <div
@@ -96,6 +98,7 @@ export function Panel({ onClose }: PanelProps) {
             items={queue.items}
             isRunning={queue.isRunning}
             isPaused={queue.isPaused}
+            aspectRatio={aspectRatio}
             onStart={queue.start}
             onPause={queue.pause}
             onStop={queue.stop}

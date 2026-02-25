@@ -14,12 +14,19 @@ const STATUS_COLORS: Record<QueueItem['status'], string> = {
   failed: '#ea4335',
 };
 
+const RATIO_LABELS: Record<string, string> = {
+  '1:1': 'Square',
+  '9:16': 'Portrait',
+  '16:9': 'Landscape',
+};
+
 interface QueueTabProps {
   bulkText: string;
   onBulkTextChange: (text: string) => void;
   items: QueueItem[];
   isRunning: boolean;
   isPaused: boolean;
+  aspectRatio: string | null;
   onStart: () => void;
   onPause: () => void;
   onStop: () => void;
@@ -31,6 +38,7 @@ export function QueueTab({
   items,
   isRunning,
   isPaused,
+  aspectRatio,
   onStart,
   onPause,
   onStop,
@@ -104,6 +112,29 @@ export function QueueTab({
               </span>
             </div>
           ))}
+        </div>
+      )}
+
+      {!isRunning && aspectRatio && (
+        <div style={{
+          display: 'inline-flex',
+          alignItems: 'center',
+          gap: '6px',
+          padding: '4px 10px',
+          marginTop: '4px',
+          background: '#141926',
+          border: '1px solid #1f2637',
+          borderRadius: '4px',
+          fontSize: '12px',
+          color: '#7c809a',
+        }}>
+          <span>Aspect ratio:</span>
+          <span style={{ color: '#e2e4eb', fontWeight: 600 }}>
+            {aspectRatio}
+          </span>
+          <span style={{ color: '#4a4e63' }}>
+            {RATIO_LABELS[aspectRatio]}
+          </span>
         </div>
       )}
 
