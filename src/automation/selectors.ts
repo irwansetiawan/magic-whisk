@@ -1,23 +1,19 @@
-// src/automation/selectors.ts
-
-// NOTE: These selectors must be verified against Whisk's live DOM.
-// Inspect the page and update as needed.
+// Whisk DOM selectors — update these if Whisk changes its UI
 export const SELECTORS = {
-  // The main text input/textarea where prompts are entered
-  promptInput: 'textarea[aria-label="Describe your image"]',
+  // The main textarea where prompts are entered
+  promptInput: 'textarea[placeholder*="Describe your idea"]',
 
-  // The generate/create button
-  generateButton: 'button[aria-label="Create"]',
+  // The submit/generate button
+  generateButton: 'button[aria-label="Submit prompt"]',
 
-  // The container where generated images appear
-  resultContainer: '[data-test-id="generated-images"]',
+  // Generated result images — Whisk uses blob URLs for rendered images
+  resultImage: 'img[src^="blob:"]',
 
-  // Individual result image elements
-  resultImage: 'img[data-test-id="generated-image"]',
-
-  // Loading/progress indicator
-  loadingIndicator: '[data-test-id="loading"]',
+  // Loading/progress indicator — look for a spinner or progress element
+  // TODO: Inspect the loading state on Whisk and refine this selector
+  loadingIndicator: '[role="progressbar"], .loading-indicator',
 
   // Error message element
-  errorMessage: '[data-test-id="error-message"]',
+  // TODO: Inspect error states on Whisk and refine this selector
+  errorMessage: '[role="alert"]',
 } as const;

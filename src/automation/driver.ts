@@ -85,7 +85,29 @@ export async function generateOne(prompt: string): Promise<GenerationResult> {
 
   await injectPrompt(prompt);
   await clickGenerate();
-  return await waitForResult(existingImages);
+  const result = await waitForResult(existingImages);
+
+  // Convert blob URL to data URL so background can download it
+  if (result.imageUrl.startsWith('blob:')) {
+    result.imageUrl = await blobUrlToDataUrl(result.imageUrl);
+  }
+
+  return result;
+}
+
+/**
+ * Convert a blob URL to a data URL so it can be sent to the background
+ * service worker for downloading (blob URLs are page-scoped).
+ */
+async function blobUrlToDataUrl(blobUrl: string): Promise<string> {
+  const response = await fetch(blobUrl);
+  const blob = await response.blob();
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
 }
 
 export function delay(ms: number): Promise<void> {
