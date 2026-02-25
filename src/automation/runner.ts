@@ -1,12 +1,12 @@
-import { generateOne, setAspectRatioOnPage, delay } from './driver';
-import type { QueueItem, ResultItem, AspectRatio } from '@/src/shared/types';
+import { generateOne, delay } from './driver';
+import type { QueueItem, ResultItem } from '@/src/shared/types';
 
 export interface RunnerCallbacks {
   onItemStart: (id: string) => void;
   onItemDone: (id: string, results: ResultItem[]) => void;
   onItemFailed: (id: string, error: string) => void;
   onComplete: () => void;
-  getSettings: () => { delayBetweenGenerations: number; aspectRatio: AspectRatio };
+  getSettings: () => { delayBetweenGenerations: number };
   shouldPause: () => boolean;
   shouldStop: () => boolean;
 }
@@ -30,10 +30,6 @@ export async function runQueue(
     callbacks.onItemStart(item.id);
 
     try {
-      // Set aspect ratio before each generation (user may change it mid-queue)
-      const { aspectRatio } = callbacks.getSettings();
-      await setAspectRatioOnPage(aspectRatio);
-
       const result = await generateOne(item.prompt);
 
       const resultItems: ResultItem[] = result.imageUrls.map((imageUrl) => ({
