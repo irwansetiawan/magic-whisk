@@ -32,8 +32,9 @@ async function waitForResult(existingImages: Set<string>): Promise<GenerationRes
   await waitForElementRemoved(SELECTORS.loadingIndicator, { timeout: 120000 });
 
   const error = document.querySelector(SELECTORS.errorMessage);
-  if (error) {
-    throw new Error(`Generation failed: ${error.textContent?.trim() || 'Unknown error'}`);
+  const errorText = error?.textContent?.trim();
+  if (error && errorText) {
+    throw new Error(`Generation failed: ${errorText}`);
   }
 
   // Wait for a NEW image that wasn't in the DOM before generation
