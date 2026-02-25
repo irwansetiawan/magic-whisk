@@ -3,7 +3,7 @@ import type { QueueItem, ResultItem } from '@/src/shared/types';
 
 export interface RunnerCallbacks {
   onItemStart: (id: string) => void;
-  onItemDone: (id: string, result: ResultItem) => void;
+  onItemDone: (id: string, results: ResultItem[]) => void;
   onItemFailed: (id: string, error: string) => void;
   onComplete: () => void;
   getSettings: () => { delayBetweenGenerations: number };
@@ -32,15 +32,15 @@ export async function runQueue(
     try {
       const result = await generateOne(item.prompt);
 
-      const resultItem: ResultItem = {
+      const resultItems: ResultItem[] = result.imageUrls.map((imageUrl) => ({
         id: crypto.randomUUID(),
         queueItemId: item.id,
         prompt: item.prompt,
-        imageUrl: result.imageUrl,
+        imageUrl,
         createdAt: Date.now(),
-      };
+      }));
 
-      callbacks.onItemDone(item.id, resultItem);
+      callbacks.onItemDone(item.id, resultItems);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Unknown error';
       console.error(`[Magic Whisk] Item "${item.prompt.slice(0, 40)}" failed:`, err);

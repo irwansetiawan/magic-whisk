@@ -2,7 +2,7 @@ import { SELECTORS } from './selectors';
 import { waitForElement, waitForElementRemoved } from './observer';
 
 export interface GenerationResult {
-  imageUrl: string;
+  imageUrls: string[];
 }
 
 async function injectPrompt(prompt: string): Promise<void> {
@@ -37,39 +37,39 @@ async function waitForResult(existingImages: Set<string>): Promise<GenerationRes
     throw new Error(`Generation failed: ${errorText}`);
   }
 
-  // Wait for a NEW image that wasn't in the DOM before generation
-  const imageUrl = await new Promise<string>((resolve, reject) => {
+  // Wait for at least one new image, then give a short settle time
+  // for additional images to appear (Whisk often generates 2+ per prompt)
+  await new Promise<void>((resolve, reject) => {
     let observer: MutationObserver | null = null;
 
-    const cleanup = () => {
-      observer?.disconnect();
-    };
+    const cleanup = () => { observer?.disconnect(); };
 
     const timeout = setTimeout(() => {
       cleanup();
       reject(new Error('Timeout waiting for new generated image'));
     }, 30000);
 
-    const checkForNewImage = () => {
+    const hasNewImage = () => {
       const images = document.querySelectorAll(SELECTORS.resultImage);
       for (const img of images) {
         const src = (img as HTMLImageElement).src;
-        if (src && !existingImages.has(src)) {
-          clearTimeout(timeout);
-          cleanup();
-          resolve(src);
-          return true;
-        }
+        if (src && !existingImages.has(src)) return true;
       }
       return false;
     };
 
-    // Check immediately — image may already be in the DOM
-    if (checkForNewImage()) return;
+    if (hasNewImage()) {
+      clearTimeout(timeout);
+      resolve();
+      return;
+    }
 
-    // Otherwise observe for changes
     observer = new MutationObserver(() => {
-      checkForNewImage();
+      if (hasNewImage()) {
+        clearTimeout(timeout);
+        cleanup();
+        resolve();
+      }
     });
 
     observer.observe(document.body, {
@@ -80,7 +80,24 @@ async function waitForResult(existingImages: Set<string>): Promise<GenerationRes
     });
   });
 
-  return { imageUrl };
+  // Short delay to let all images from this generation render
+  await delay(2000);
+
+  // Collect ALL new images
+  const imageUrls: string[] = [];
+  const images = document.querySelectorAll(SELECTORS.resultImage);
+  for (const img of images) {
+    const src = (img as HTMLImageElement).src;
+    if (src && !existingImages.has(src)) {
+      imageUrls.push(src);
+    }
+  }
+
+  if (imageUrls.length === 0) {
+    throw new Error('No new images found after generation');
+  }
+
+  return { imageUrls };
 }
 
 export async function generateOne(prompt: string): Promise<GenerationResult> {
@@ -94,12 +111,14 @@ export async function generateOne(prompt: string): Promise<GenerationResult> {
   await clickGenerate();
   const result = await waitForResult(existingImages);
 
-  // Convert blob URL to data URL so background can download it
-  if (result.imageUrl.startsWith('blob:')) {
-    result.imageUrl = await blobUrlToDataUrl(result.imageUrl);
-  }
+  // Convert blob URLs to data URLs so background can download them
+  const convertedUrls = await Promise.all(
+    result.imageUrls.map((url) =>
+      url.startsWith('blob:') ? blobUrlToDataUrl(url) : Promise.resolve(url)
+    )
+  );
 
-  return result;
+  return { imageUrls: convertedUrls };
 }
 
 /**

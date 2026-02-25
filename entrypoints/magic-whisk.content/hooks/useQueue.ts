@@ -43,19 +43,22 @@ export function useQueue(settings: Settings) {
 
     runQueue(items, {
       onItemStart: (id) => updateStatus(id, 'running'),
-      onItemDone: (id, result) => {
+      onItemDone: (id, results) => {
         updateStatus(id, 'done');
-        setResults((prev) => [...prev, result]);
+        setResults((prev) => [...prev, ...results]);
 
-        // Auto-download the generated image via background service worker
+        // Auto-download all generated images via background service worker
         if (settingsRef.current.autoDownload) {
-          browser.runtime.sendMessage({
-            type: 'DOWNLOAD_IMAGE',
-            payload: {
-              imageUrl: result.imageUrl,
-              filename: `${sanitizeFilename(result.prompt)}-${Date.now()}.png`,
-              folder: settingsRef.current.downloadFolder,
-            },
+          results.forEach((result, i) => {
+            const suffix = results.length > 1 ? `-${i + 1}` : '';
+            browser.runtime.sendMessage({
+              type: 'DOWNLOAD_IMAGE',
+              payload: {
+                imageUrl: result.imageUrl,
+                filename: `${sanitizeFilename(result.prompt)}${suffix}-${Date.now()}.png`,
+                folder: settingsRef.current.downloadFolder,
+              },
+            });
           });
         }
       },
