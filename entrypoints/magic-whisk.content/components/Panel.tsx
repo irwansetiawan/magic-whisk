@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { QueueTab } from './QueueTab';
 import { GalleryTab } from './GalleryTab';
 import { SettingsTab } from './SettingsTab';
@@ -11,16 +11,36 @@ type Tab = 'queue' | 'gallery' | 'logs' | 'settings';
 
 interface PanelProps {
   onClose: () => void;
+  width: number;
+  onResize: (width: number) => void;
 }
 
 const logoUrl = browser.runtime.getURL('/icon/logo.png');
 const bmcQrUrl = browser.runtime.getURL('/icon/bmc-qr.png');
 
-export function Panel({ onClose }: PanelProps) {
+export function Panel({ onClose, width, onResize }: PanelProps) {
   const [activeTab, setActiveTab] = useState<Tab>('queue');
   const settingsObj = useSettings();
   const queue = useQueue(settingsObj.settings);
   const aspectRatio = useAspectRatio();
+  const isDragging = useRef(false);
+
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    e.preventDefault();
+    isDragging.current = true;
+
+    const onMouseMove = (ev: MouseEvent) => {
+      if (!isDragging.current) return;
+      onResize(window.innerWidth - ev.clientX);
+    };
+    const onMouseUp = () => {
+      isDragging.current = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+    };
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  }, [onResize]);
 
   return (
     <div
@@ -28,7 +48,7 @@ export function Panel({ onClose }: PanelProps) {
         position: 'fixed',
         right: '0',
         top: '0',
-        width: '340px',
+        width: `${width}px`,
         height: '100vh',
         background: '#0b0e15',
         color: '#e2e4eb',
@@ -40,6 +60,19 @@ export function Panel({ onClose }: PanelProps) {
         boxShadow: '-2px 0 12px rgba(0,0,0,0.5)',
       }}
     >
+      {/* Resize handle */}
+      <div
+        onMouseDown={handleMouseDown}
+        style={{
+          position: 'absolute',
+          left: '-3px',
+          top: 0,
+          width: '6px',
+          height: '100%',
+          cursor: 'col-resize',
+          zIndex: 10001,
+        }}
+      />
       {/* Header */}
       <div style={{
         display: 'flex',

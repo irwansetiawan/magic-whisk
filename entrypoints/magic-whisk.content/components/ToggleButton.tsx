@@ -1,17 +1,18 @@
 interface ToggleButtonProps {
   onClick: () => void;
   isOpen: boolean;
+  panelWidth: number;
 }
 
 const logoUrl = browser.runtime.getURL('/icon/logo.png');
 
-export function ToggleButton({ onClick, isOpen }: ToggleButtonProps) {
+export function ToggleButton({ onClick, isOpen, panelWidth }: ToggleButtonProps) {
   return (
     <button
       onClick={onClick}
       style={{
         position: 'fixed',
-        right: isOpen ? '340px' : '0',
+        right: isOpen ? `${panelWidth}px` : '0',
         top: '25%',
         transform: 'translateY(-50%)',
         zIndex: 10000,
