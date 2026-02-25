@@ -26,6 +26,10 @@ Chrome extension that automates batch image generation on [Google Whisk](https:/
 
 See [DEVELOPMENT.md](DEVELOPMENT.md) for setup, build instructions, and technical details.
 
+## License
+
+This project is licensed under the [GNU General Public License v3.0](LICENSE).
+
 ## Support
 
 If you find Magic Whisk useful, consider [buying me a coffee](https://buymeacoffee.com/irwansetiawan) ☕
