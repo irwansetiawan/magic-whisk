@@ -156,6 +156,7 @@ export function Panel({ onClose }: PanelProps) {
             }}
           >♥ GitHub Sponsor</a>
         </div>
+        <div style={{ fontSize: '10px', color: '#4a4e63' }}>Magic Whisk is free and open source.</div>
         <a
           href="https://github.com/irwansetiawan/magic-whisk/issues"
           target="_blank"
