@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Magic Whisk — Batch Image Generation for Google Whisk</title>
+  <meta name="description" content="Chrome extension that automates batch image generation on Google Whisk. Queue prompts, auto-download results, browse in a gallery.">
+  <link rel="icon" type="image/png" href="logo.jpeg">
+  <style>
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    :root {
+      --bg: #0b0e15;
+      --surface: #141926;
+      --border: #1f2637;
+      --purple: #9366f0;
+      --purple-glow: rgba(147, 102, 240, 0.3);
+      --gold: #d4a843;
+      --text: #e2e4eb;
+      --text-secondary: #7c809a;
+    }
+
+    body {
+      font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.6;
+      overflow-x: hidden;
+    }
+
+    /* Starfield background */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(1px 1px at 10% 20%, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1px 1px at 30% 60%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 50% 10%, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1px 1px at 70% 80%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 90% 40%, rgba(255,255,255,0.4), transparent),
+        radial-gradient(1.5px 1.5px at 15% 85%, rgba(147,102,240,0.5), transparent),
+        radial-gradient(1.5px 1.5px at 85% 15%, rgba(212,168,67,0.4), transparent),
+        radial-gradient(1px 1px at 25% 45%, rgba(255,255,255,0.2), transparent),
+        radial-gradient(1px 1px at 65% 35%, rgba(255,255,255,0.3), transparent),
+        radial-gradient(1px 1px at 45% 75%, rgba(255,255,255,0.2), transparent);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 0 24px;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* Hero */
+    .hero {
+      text-align: center;
+      padding: 80px 0 60px;
+    }
+
+    .hero-logo {
+      width: 180px;
+      height: 180px;
+      border-radius: 32px;
+      margin-bottom: 32px;
+      filter: drop-shadow(0 0 40px var(--purple-glow));
+      animation: float 6s ease-in-out infinite;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-12px); }
+    }
+
+    .hero h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 16px;
+      background: linear-gradient(135deg, var(--text), var(--purple), var(--gold));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .hero .tagline {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      max-width: 520px;
+      margin: 0 auto 40px;
+    }
+
+    .cta-button {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      padding: 16px 36px;
+      background: linear-gradient(135deg, var(--purple), #7c4ddb);
+      color: white;
+      text-decoration: none;
+      border-radius: 12px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      transition: transform 0.2s, box-shadow 0.2s;
+      box-shadow: 0 4px 24px var(--purple-glow);
+    }
+
+    .cta-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 32px var(--purple-glow);
+    }
+
+    .cta-sub {
+      margin-top: 12px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* Features */
+    .features {
+      padding: 60px 0;
+    }
+
+    .features h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 48px;
+      color: var(--text);
+    }
+
+    .feature-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 24px;
+    }
+
+    .feature-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 28px 24px;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .feature-card:hover {
+      transform: translateY(-4px);
+      border-color: var(--purple);
+    }
+
+    .feature-icon {
+      font-size: 2rem;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .feature-card h3 {
+      font-size: 1.1rem;
+      margin-bottom: 8px;
+      color: var(--text);
+    }
+
+    .feature-card p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      line-height: 1.5;
+    }
+
+    /* How it works */
+    .how-it-works {
+      padding: 60px 0;
+    }
+
+    .how-it-works h2 {
+      text-align: center;
+      font-size: 2rem;
+      margin-bottom: 48px;
+    }
+
+    .steps {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 24px;
+    }
+
+    .step-number {
+      flex-shrink: 0;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--purple), #7c4ddb);
+      color: white;
+      font-weight: 700;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .step h3 {
+      font-size: 1.05rem;
+      margin-bottom: 4px;
+    }
+
+    .step p {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+
+    /* Tech */
+    .tech {
+      padding: 60px 0;
+      text-align: center;
+    }
+
+    .tech h2 {
+      font-size: 2rem;
+      margin-bottom: 16px;
+    }
+
+    .tech p {
+      color: var(--text-secondary);
+      margin-bottom: 32px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .tech-badges {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 12px;
+    }
+
+    .badge {
+      padding: 8px 18px;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+    }
+
+    /* Footer */
+    footer {
+      text-align: center;
+      padding: 48px 0;
+      border-top: 1px solid var(--border);
+      color: var(--text-secondary);
+      font-size: 0.85rem;
+    }
+
+    footer a {
+      color: var(--purple);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .hero { padding: 48px 0 40px; }
+      .hero h1 { font-size: 2rem; }
+      .hero .tagline { font-size: 1.05rem; }
+      .hero-logo { width: 120px; height: 120px; border-radius: 24px; }
+      .feature-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="container">
+      <img src="logo.jpeg" alt="Magic Whisk logo" class="hero-logo">
+      <h1>Magic Whisk</h1>
+      <p class="tagline">
+        Batch image generation for Google Whisk &mdash; queue prompts, auto-download results, browse in a built-in gallery.
+      </p>
+      <a href="https://github.com/irwansetiawan/magic-whisk" class="cta-button">
+        <svg width="20" height="20" viewBox="0 0 16 16" fill="currentColor"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38 0-.19-.01-.82-.01-1.49-2.01.37-2.53-.49-2.69-.94-.09-.23-.48-.94-.82-1.13-.28-.15-.68-.52-.01-.53.63-.01 1.08.58 1.23.82.72 1.21 1.87.87 2.33.66.07-.52.28-.87.51-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82.64-.18 1.32-.27 2-.27.68 0 1.36.09 2 .27 1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48 0 1.07-.01 1.93-.01 2.2 0 .21.15.46.55.38A8.013 8.013 0 0016 8c0-4.42-3.58-8-8-8z"/></svg>
+        View on GitHub
+      </a>
+      <p class="cta-sub">Free &amp; open source. Install from source or Chrome Web Store.</p>
+    </div>
+  </section>
+
+  <!-- Features -->
+  <section class="features">
+    <div class="container">
+      <h2>What it does</h2>
+      <div class="feature-grid">
+        <div class="feature-card">
+          <span class="feature-icon">&#x1F4DD;</span>
+          <h3>Batch Queue</h3>
+          <p>Queue multiple prompts at once. Magic Whisk runs them one by one through Google Whisk automatically.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">&#x2B07;&#xFE0F;</span>
+          <h3>Auto-Download</h3>
+          <p>Every generated image is saved to your downloads folder instantly. No manual right-click saving.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">&#x1F5BC;&#xFE0F;</span>
+          <h3>Built-in Gallery</h3>
+          <p>Browse all generated images in a grid. Select multiple and batch download with one click.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">&#x23F8;&#xFE0F;</span>
+          <h3>Pause &amp; Resume</h3>
+          <p>Pause the queue anytime. Resume right where you left off. Stop completely if you change your mind.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">&#x2699;&#xFE0F;</span>
+          <h3>Configurable</h3>
+          <p>Set delay between generations, choose download folder, toggle auto-download on or off.</p>
+        </div>
+        <div class="feature-card">
+          <span class="feature-icon">&#x1F6E1;&#xFE0F;</span>
+          <h3>Privacy-First</h3>
+          <p>Runs entirely in your browser. No external servers, no data collection. Uses your existing Google login.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- How it works -->
+  <section class="how-it-works">
+    <div class="container">
+      <h2>How it works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-number">1</div>
+          <div>
+            <h3>Open Google Whisk</h3>
+            <p>Navigate to <strong>labs.google/fx/tools/whisk</strong>. Magic Whisk appears as a small icon on the right edge.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">2</div>
+          <div>
+            <h3>Add your prompts</h3>
+            <p>Click the icon to open the panel. Type one prompt per row. Add as many as you want.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">3</div>
+          <div>
+            <h3>Hit Start</h3>
+            <p>Magic Whisk takes over &mdash; injecting each prompt into Whisk, clicking generate, and collecting every result image.</p>
+          </div>
+        </div>
+        <div class="step">
+          <div class="step-number">4</div>
+          <div>
+            <h3>Sit back</h3>
+            <p>Images auto-download as they complete. Browse everything in the gallery tab when you're done.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tech -->
+  <section class="tech">
+    <div class="container">
+      <h2>Built with</h2>
+      <p>Modern tools for a smooth extension experience.</p>
+      <div class="tech-badges">
+        <span class="badge">TypeScript</span>
+        <span class="badge">React 19</span>
+        <span class="badge">WXT</span>
+        <span class="badge">Manifest V3</span>
+        <span class="badge">Shadow DOM</span>
+        <span class="badge">Chrome APIs</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>
+        Magic Whisk is open source.
+        <a href="https://github.com/irwansetiawan/magic-whisk">GitHub</a> &middot;
+        <a href="https://github.com/irwansetiawan/magic-whisk/issues">Issues</a>
+      </p>
+    </div>
+  </footer>
+
+</body>
+</html>
