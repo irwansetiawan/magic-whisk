@@ -105,27 +105,58 @@ export function Panel({ onClose }: PanelProps) {
         {activeTab === 'settings' && <SettingsTab settings={settingsObj.settings} onUpdateSettings={settingsObj.updateSettings} />}
       </div>
 
-      {/* Buy Me a Coffee */}
-      <a
-        href="https://buymeacoffee.com/irwansetiawan"
-        target="_blank"
-        rel="noopener noreferrer"
-        style={{
-          display: 'flex',
-          flexDirection: 'column',
-          alignItems: 'center',
-          gap: '8px',
-          padding: '20px 16px',
-          borderTop: '1px solid #1f2637',
-          background: '#141926',
-          textDecoration: 'none',
-          cursor: 'pointer',
-          flexShrink: 0,
-        }}
-      >
-        <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e4eb' }}>Enjoy Magic Whisk? Buy me a coffee ☕</div>
-        <img src={bmcQrUrl} alt="QR code" style={{ width: '140px', height: '140px', borderRadius: '8px' }} />
-      </a>
+      {/* Support */}
+      <div style={{
+        borderTop: '1px solid #1f2637',
+        background: '#141926',
+        padding: '16px',
+        flexShrink: 0,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '12px',
+      }}>
+        <div style={{ fontSize: '13px', fontWeight: 600, color: '#e2e4eb' }}>Enjoy Magic Whisk?</div>
+        <img src={bmcQrUrl} alt="QR code" style={{ width: '120px', height: '120px', borderRadius: '8px' }} />
+        <div style={{ display: 'flex', gap: '10px', width: '100%' }}>
+          <a
+            href="https://buymeacoffee.com/irwansetiawan"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              flex: 1,
+              padding: '8px',
+              background: '#0b0e15',
+              border: '1px solid #1f2637',
+              borderRadius: '8px',
+              color: '#e2e4eb',
+              fontSize: '12px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              textAlign: 'center',
+              cursor: 'pointer',
+            }}
+          >☕ Buy me a coffee</a>
+          <a
+            href="https://github.com/sponsors/irwansetiawan"
+            target="_blank"
+            rel="noopener noreferrer"
+            style={{
+              flex: 1,
+              padding: '8px',
+              background: '#0b0e15',
+              border: '1px solid #1f2637',
+              borderRadius: '8px',
+              color: '#e2e4eb',
+              fontSize: '12px',
+              fontWeight: 600,
+              textDecoration: 'none',
+              textAlign: 'center',
+              cursor: 'pointer',
+            }}
+          >♥ GitHub Sponsor</a>
+        </div>
+      </div>
     </div>
   );
 }
