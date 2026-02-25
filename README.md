@@ -1,55 +1,37 @@
 # Magic Whisk
 
-Chrome extension that automates batch image generation on [Google Whisk](https://labs.google/fx/tools/whisk/). Injects a slide-out panel directly into the Whisk page for queuing prompts, auto-downloading results, and managing a gallery of generated images.
+Chrome extension that automates batch image generation on [Google Whisk](https://labs.google/fx/tools/whisk/). Queue prompts, auto-download results, and browse everything in a built-in gallery — all from a slide-out panel injected directly into the Whisk page.
+
+[![Chrome Web Store](https://img.shields.io/badge/Chrome_Web_Store-Add_to_Chrome-9366f0?style=for-the-badge&logo=googlechrome&logoColor=white)](https://chromewebstore.google.com/detail/magic-whisk/eaippdoglkmoiibnngkjfbhelnfpfdgh)
 
 ## Features
 
-- **Batch generation** -- Queue multiple prompts and run them through Whisk automatically
-- **Auto-download** -- Images save to your downloads folder as they're generated
-- **Results gallery** -- Browse all generated images, select and batch download
-- **Settings** -- Configure delay between generations, toggle auto-download, set download folder name
-
-## Install (Development)
-
-```bash
-npm install
-npm run dev
-```
-
-1. Open `chrome://extensions`
-2. Enable **Developer mode**
-3. Click **Load unpacked** and select the `.output/chrome-mv3` folder
-4. Navigate to https://labs.google/fx/tools/whisk
-
-A small blue toggle button will appear on the right edge of the page. Click it to open the Magic Whisk panel.
+- **Batch generation** — Queue multiple prompts and run them through Whisk automatically, one by one
+- **Auto-download** — Images save to your downloads folder as they're generated
+- **Results gallery** — Browse all generated images in a grid, select multiple and batch download
+- **Pause & resume** — Pause the queue anytime, resume where you left off, or stop completely
+- **Configurable** — Set delay between generations, toggle auto-download, customize download folder
+- **Privacy-first** — Runs entirely in your browser, no external servers or data collection
 
 ## Usage
 
-1. Open the panel and add prompts (one textarea per prompt, multiline supported)
-2. Click **Start** to begin batch generation
-3. Use **Pause/Resume** or **Stop** to control the queue
-4. Switch to the **Gallery** tab to browse results
-5. Adjust settings in the **Settings** tab (gear icon)
+1. Install from the [Chrome Web Store](https://chromewebstore.google.com/detail/magic-whisk/eaippdoglkmoiibnngkjfbhelnfpfdgh)
+2. Navigate to [Google Whisk](https://labs.google/fx/tools/whisk)
+3. Click the Magic Whisk icon on the right edge of the page
+4. Add your prompts (one per row, multiline supported)
+5. Click **Start** and let it run
+6. Browse results in the **Gallery** tab, adjust settings via the gear icon
 
-## Important: DOM Selectors
+## Contributing
 
-The extension automates Whisk by interacting with its DOM. The selectors in `src/automation/selectors.ts` are **placeholders** and must be updated to match Whisk's actual page structure.
+See [DEVELOPMENT.md](DEVELOPMENT.md) for setup, build instructions, and technical details.
 
-To find the correct selectors:
+## Support
 
-1. Open Whisk in Chrome
-2. Right-click on the prompt input field -> Inspect
-3. Note the selector for the textarea, generate button, loading indicator, and result images
-4. Update `src/automation/selectors.ts` with the real selectors
+If you find Magic Whisk useful, consider [buying me a coffee](https://buymeacoffee.com/irwansetiawan) ☕
 
-## Build
+## Links
 
-```bash
-npm run build    # Production build -> .output/chrome-mv3
-```
-
-## Tech Stack
-
-- TypeScript, React, [WXT](https://wxt.dev/) (Vite-based extension framework)
-- Chrome Extension Manifest V3
-- Shadow DOM for style isolation
+- [Landing page](https://irwansetiawan.github.io/magic-whisk/)
+- [Privacy policy](https://irwansetiawan.github.io/magic-whisk/privacy.html)
+- [Report an issue](https://github.com/irwansetiawan/magic-whisk/issues)
